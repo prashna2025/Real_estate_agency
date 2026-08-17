@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PublicLayout from './components/public/PublicLayout';
 
-// Placeholder Pages (To be built on Day 4)
-const Home = () => <div className="p-20 text-center font-serif text-3xl">Home Page (Coming Day 4)</div>;
-const Properties = () => <div className="p-20 text-center font-serif text-3xl">Properties List</div>;
-const PropertyDetail = () => <div className="p-20 text-center font-serif text-3xl">Property Detail</div>;
+// Public Pages
+import Home from './pages/public/Home';
+import Properties from './pages/public/Properties';
+import PropertyDetail from './pages/public/PropertyDetail';
 
 function App() {
   return (
