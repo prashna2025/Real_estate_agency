@@ -1,6 +1,6 @@
 import Inquiry from '../models/Inquiry.js';
 import Property from '../models/Property.js';
-import { sendInquiryEmail } from '../services/emailService.js';
+import { sendInquiryEmail } from '../services/emailServices.js';
 
 /**
  * @desc   Create new inquiry from public property page

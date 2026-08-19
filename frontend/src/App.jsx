@@ -5,7 +5,7 @@ import AdminLayout from './components/admin/AdminLayout';
 // Public Pages
 import Home from './pages/public/Home';
 import Properties from './pages/public/Properties';
-import PropertyDetail from './pages/public/PropertyDetail';
+import PropertyDetail from './pages/public/PropertyDetails';
 
 // Admin Pages
 import Login from './pages/admin/Login';
