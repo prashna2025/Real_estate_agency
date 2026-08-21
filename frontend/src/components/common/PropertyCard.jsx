@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, BedDouble, Bath, Square } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { getImageUrl } from '../../services/api';
 
 const PropertyCard = ({ property, className }) => {
   const formatPrice = (price) => {
@@ -17,7 +18,7 @@ const PropertyCard = ({ property, className }) => {
       {/* Image Container */}
       <Link to={`/property/${property.slug}`} className="relative aspect-[4/3] overflow-hidden bg-cream-dark">
         <img 
-          src={property.images[0] ? `http://localhost:5000${property.images[0]}` : 'https://via.placeholder.com/800x600?text=No+Image'} 
+          src={getImageUrl(property.images?.[0])}
           alt={property.title} 
           className="w-full h-full object-cover transition-transform duration-700 ease-slow-ease group-hover:scale-105"
         />

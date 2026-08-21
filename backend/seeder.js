@@ -6,6 +6,13 @@ import Inquiry from './models/Inquiry.js';
 import connectDB from './config/db.js';
 
 dotenv.config();
+
+if (process.env.NODE_ENV === 'production' || process.env.ALLOW_SEED !== 'true') {
+  throw new Error('Seeding is disabled. Set ALLOW_SEED=true for a disposable development database.');
+}
+if (!process.env.SEED_ADMIN_PASSWORD || process.env.SEED_ADMIN_PASSWORD.length < 12) {
+  throw new Error('SEED_ADMIN_PASSWORD must be at least 12 characters long.');
+}
 await connectDB();
 
 const importData = async () => {
@@ -18,11 +25,11 @@ const importData = async () => {
     const admin = await Admin.create({
       name: 'Agency Administrator',
       email: 'admin@boutique.com',
-      password: 'adminpassword123', // Will be automatically hashed by pre-save hook
+      password: process.env.SEED_ADMIN_PASSWORD,
       role: 'Super Admin',
     });
 
-    console.log('Admin user created (admin@boutique.com / adminpassword123)');
+    console.log('Admin user created.');
 
     // Create Sample Properties
     await Property.create([

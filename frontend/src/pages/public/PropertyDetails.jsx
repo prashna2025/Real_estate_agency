@@ -43,6 +43,8 @@ const PropertyDetail = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center font-serif text-xl italic">Loading property details...</div>;
   if (!property) return <div className="min-h-screen flex items-center justify-center font-serif text-xl">Property not found.</div>;
 
+  const images = Array.isArray(property.images) ? property.images : [];
+
   const formatPrice = (price) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(price);
 
   return (
@@ -60,14 +62,14 @@ const PropertyDetail = () => {
           <div className="space-y-4">
             <div className="aspect-video bg-stone overflow-hidden rounded-sm">
               <img 
-                src={getImageUrl(property.images[activeImage])} 
+                src={getImageUrl(images[activeImage])} 
                 alt={property.title}
                 className="w-full h-full object-cover"
               />
             </div>
-            {property.images.length > 1 && (
+            {images.length > 1 && (
               <div className="grid grid-cols-4 md:grid-cols-6 gap-4">
-                {property.images.map((img, idx) => (
+                {images.map((img, idx) => (
                   <button 
                     key={idx} 
                     onClick={() => setActiveImage(idx)}

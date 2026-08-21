@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer';
 
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;');
+
 const createTransporter = () => {
   return nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -24,6 +31,12 @@ export const sendInquiryEmail = async ({ inquiry, property }) => {
   }
 
   const transporter = createTransporter();
+  const propertyTitle = escapeHtml(property.title);
+  const name = escapeHtml(inquiry.name);
+  const email = escapeHtml(inquiry.email);
+  const phone = escapeHtml(inquiry.phone);
+  const location = escapeHtml(`${property.location}, ${property.city}`);
+  const message = escapeHtml(inquiry.message);
 
   const mailOptions = {
     from: `"Boutique Real Estate" <${process.env.EMAIL_USER}>`,
@@ -34,30 +47,30 @@ export const sendInquiryEmail = async ({ inquiry, property }) => {
         <h2 style="font-family: 'Playfair Display', Georgia, serif; color: #8C4A32; border-bottom: 2px solid #8C4A32; padding-bottom: 8px;">
           New Property Inquiry
         </h2>
-        <p style="font-size: 15px; line-height: 1.6;">You have received a new inquiry for the property: <strong>${property.title}</strong> (NPR ${property.price.toLocaleString()}).</p>
+        <p style="font-size: 15px; line-height: 1.6;">You have received a new inquiry for the property: <strong>${propertyTitle}</strong> (NPR ${property.price.toLocaleString()}).</p>
         
         <table style="width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px;">
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Client Name:</strong></td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;">${inquiry.name}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;">${name}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Email:</strong></td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;"><a href="mailto:${inquiry.email}" style="color: #8C4A32;">${inquiry.email}</a></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;"><a href="mailto:${email}" style="color: #8C4A32;">${email}</a></td>
           </tr>
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Phone:</strong></td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;"><a href="tel:${inquiry.phone}" style="color: #8C4A32;">${inquiry.phone}</a></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;"><a href="tel:${phone}" style="color: #8C4A32;">${phone}</a></td>
           </tr>
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Property City / Location:</strong></td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;">${property.location}, ${property.city}</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;">${location}</td>
           </tr>
         </table>
 
         <div style="margin-top: 20px; padding: 16px; background-color: #FFFFFF; border-left: 4px solid #8C4A32;">
           <strong style="color: #1E1E1E; display: block; margin-bottom: 6px;">Client Message:</strong>
-          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #3A3834;">${inquiry.message}</p>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #3A3834;">${message}</p>
         </div>
 
         <p style="margin-top: 24px; font-size: 12px; color: #9B948A;">Boutique Real Estate Agency &bull; Automated Inquiry Notification</p>

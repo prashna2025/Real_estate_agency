@@ -5,6 +5,7 @@ import { Home, Mail, Star, TrendingUp } from 'lucide-react';
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -12,7 +13,7 @@ const Dashboard = () => {
         const { data } = await api.get('/admin/dashboard-stats');
         setStats(data);
       } catch (error) {
-        console.error('Failed to fetch stats');
+        setError(error.response?.data?.message || 'Could not load dashboard statistics.');
       } finally {
         setLoading(false);
       }
@@ -21,6 +22,8 @@ const Dashboard = () => {
   }, []);
 
   if (loading) return <div className="font-serif italic text-charcoal-muted">Loading dashboard...</div>;
+  if (error) return <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>;
+  if (!stats) return <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">Dashboard data is unavailable.</div>;
 
   const statCards = [
     { title: 'Total Properties', value: stats.totalProperties, icon: Home, color: 'text-charcoal' },

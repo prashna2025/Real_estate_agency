@@ -10,6 +10,18 @@ import { sendInquiryEmail } from '../services/emailServices.js';
 export const createInquiry = async (req, res) => {
   try {
     const { name, email, phone, message, propertyId } = req.body;
+    if (!name || String(name).trim().length < 2 || String(name).length > 100) {
+      return res.status(400).json({ message: 'Name must be between 2 and 100 characters' });
+    }
+    if (!/^\S+@\S+\.\S+$/.test(String(email || '')) || String(email).length > 254) {
+      return res.status(400).json({ message: 'A valid email is required' });
+    }
+    if (!phone || String(phone).length > 30 || !/^[+\d ()-]+$/.test(String(phone))) {
+      return res.status(400).json({ message: 'A valid phone number is required' });
+    }
+    if (!message || String(message).trim().length < 5 || String(message).length > 2000) {
+      return res.status(400).json({ message: 'Message must be between 5 and 2000 characters' });
+    }
 
     const property = await Property.findById(propertyId);
     if (!property) {

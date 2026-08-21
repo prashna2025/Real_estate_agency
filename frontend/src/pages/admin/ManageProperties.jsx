@@ -26,8 +26,12 @@ const ManageProperties = () => {
 
 	const removeProperty = async (id) => {
 		if (!window.confirm('Delete this property?')) return;
-		await api.delete(`/properties/${id}`);
-		setProperties((current) => current.filter((property) => property._id !== id));
+		try {
+			await api.delete(`/properties/${id}`);
+			setProperties((current) => current.filter((property) => property._id !== id));
+		} catch (requestError) {
+			setError(requestError.response?.data?.message || 'Could not delete property.');
+		}
 	};
 
 	return (

@@ -18,11 +18,26 @@ const propertySchema = new mongoose.Schema({
   isFeatured: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+  amenities: { type: [String], default: [] },
+  serviceLevel: {
+    type: String,
+    enum: ['Standard', 'Premium Serviced', 'Bare Shell'],
+    default: 'Standard',
+  },
+  neighborhood: {
+    vibeTags: { type: [String], default: [] },
+    distanceToAirportKm: { type: Number, min: 0 },
+  },
+  houseRules: {
+    petsAllowed: { type: Boolean, default: false },
+    checkInTime: { type: String, default: 'Flexible' },
+  },
 }, { timestamps: true });
 
 propertySchema.pre('validate', function (next) {
-  if (!this.slug && this.title) this.slug = generateSlug(this.title);
+  if ((this.isNew || this.isModified('title')) && this.title) {
+    this.slug = generateSlug(this.title);
+  }
   next();
 });
-
 export default mongoose.model('Property', propertySchema);

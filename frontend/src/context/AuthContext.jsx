@@ -10,10 +10,17 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedAdmin = localStorage.getItem('adminInfo');
     if (storedAdmin) {
-      const parsedAdmin = JSON.parse(storedAdmin);
-      setAdmin(parsedAdmin);
-      // Attach token to all future axios requests
-      api.defaults.headers.common['Authorization'] = `Bearer ${parsedAdmin.token}`;
+      try {
+        const parsedAdmin = JSON.parse(storedAdmin);
+        if (parsedAdmin?.token) {
+          setAdmin(parsedAdmin);
+          api.defaults.headers.common['Authorization'] = `Bearer ${parsedAdmin.token}`;
+        } else {
+          localStorage.removeItem('adminInfo');
+        }
+      } catch {
+        localStorage.removeItem('adminInfo');
+      }
     }
     setLoading(false);
   }, []);

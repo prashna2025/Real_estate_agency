@@ -22,11 +22,11 @@ const storage = multer.diskStorage({
 
 // File filter for images only
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|webp/;
+  const allowedExtensions = /\.(jpeg|jpg|png|webp)$/i;
   const isExtValid = allowedExtensions.test(
     path.extname(file.originalname).toLowerCase()
   );
-  const isMimeValid = allowedExtensions.test(file.mimetype);
+  const isMimeValid = /^image\/(jpeg|png|webp)$/.test(file.mimetype);
 
   if (isExtValid && isMimeValid) {
     cb(null, true);

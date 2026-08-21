@@ -2,6 +2,13 @@ import Property from '../models/Property.js';
 import fs from 'fs';
 import path from 'path';
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const parsePositiveNumber = (value, fallback, maximum) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 && parsed <= maximum ? parsed : fallback;
+};
+
 /**
  * @desc   Get all properties with filtering, searching, sorting, and pagination
  * @route  GET /api/properties
@@ -26,24 +33,27 @@ export const getProperties = async (req, res) => {
 
     // Keyword search (title, description, location)
     if (keyword) {
+      const safeKeyword = escapeRegex(String(keyword).slice(0, 100));
       query.$or = [
-        { title: { $regex: keyword, $options: 'i' } },
-        { description: { $regex: keyword, $options: 'i' } },
-        { location: { $regex: keyword, $options: 'i' } },
+        { title: { $regex: safeKeyword, $options: 'i' } },
+        { description: { $regex: safeKeyword, $options: 'i' } },
+        { location: { $regex: safeKeyword, $options: 'i' } },
       ];
     }
 
     // Direct filters
     if (type) query.type = type;
     if (category) query.category = category;
-    if (city) query.city = { $regex: city, $options: 'i' };
-    if (bedrooms) query.bedrooms = { $gte: Number(bedrooms) };
+    if (city) query.city = { $regex: escapeRegex(String(city).slice(0, 80)), $options: 'i' };
+    if (bedrooms !== undefined && Number.isFinite(Number(bedrooms)) && Number(bedrooms) >= 0) {
+      query.bedrooms = { $gte: Number(bedrooms) };
+    }
 
     // Price range filtering
     if (minPrice || maxPrice) {
       query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      if (minPrice !== undefined && Number.isFinite(Number(minPrice)) && Number(minPrice) >= 0) query.price.$gte = Number(minPrice);
+      if (maxPrice !== undefined && Number.isFinite(Number(maxPrice)) && Number(maxPrice) >= 0) query.price.$lte = Number(maxPrice);
     }
 
     // Sorting logic
@@ -52,8 +62,8 @@ export const getProperties = async (req, res) => {
     if (sort === 'price-desc') sortOptions = { price: -1 };
     if (sort === 'views') sortOptions = { views: -1 };
 
-    const pageNumber = Number(page);
-    const pageSize = Number(limit);
+    const pageNumber = parsePositiveNumber(page, 1, 100000);
+    const pageSize = parsePositiveNumber(limit, 9, 100);
     const skip = (pageNumber - 1) * pageSize;
 
     const total = await Property.countDocuments(query);
@@ -152,6 +162,7 @@ export const createProperty = async (req, res) => {
       bathrooms: Number(bathrooms) || 0,
       area: Number(area),
       images,
+      agentId: req.admin._id,
       status: status || 'Available',
       isFeatured: isFeatured === 'true' || isFeatured === true,
     });
@@ -179,9 +190,12 @@ export const updateProperty = async (req, res) => {
     // Retain existing images or append newly uploaded files
     let updatedImages = property.images;
     if (req.body.existingImages) {
-      updatedImages = Array.isArray(req.body.existingImages)
+      const requestedImages = Array.isArray(req.body.existingImages)
         ? req.body.existingImages
         : [req.body.existingImages];
+      updatedImages = requestedImages.filter((image) => (
+        typeof image === 'string' && image.startsWith('/uploads/') && !image.includes('..')
+      ));
     }
 
     if (req.files && req.files.length > 0) {
@@ -200,6 +214,7 @@ export const updateProperty = async (req, res) => {
     property.bathrooms = req.body.bathrooms !== undefined ? Number(req.body.bathrooms) : property.bathrooms;
     property.area = req.body.area ? Number(req.body.area) : property.area;
     property.images = updatedImages;
+    property.agentId = property.agentId || req.admin._id;
     property.status = req.body.status || property.status;
     property.isFeatured = req.body.isFeatured !== undefined 
       ? (req.body.isFeatured === 'true' || req.body.isFeatured === true) 
@@ -226,9 +241,10 @@ export const deleteProperty = async (req, res) => {
     }
 
     // Clean up local images
+    const uploadRoot = path.resolve(process.cwd(), 'uploads');
     property.images.forEach((img) => {
-      const fullPath = path.join(process.cwd(), img);
-      if (fs.existsSync(fullPath)) {
+      const fullPath = path.resolve(process.cwd(), `.${img}`);
+      if (fullPath.startsWith(`${uploadRoot}${path.sep}`) && fs.existsSync(fullPath)) {
         fs.unlink(fullPath, (err) => {
           if (err) console.error(`Failed to delete local image: ${fullPath}`);
         });
