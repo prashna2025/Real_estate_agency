@@ -63,7 +63,7 @@ export const getDashboardStats = async (req, res) => {
       recentInquiries,
     ] = await Promise.all([
       Property.countDocuments(),
-      Inquiry.countDocuments(),
+      Inquiry.countDocuments({ status: { $ne: 'Resolved' } }),
       Property.countDocuments({ isFeatured: true }),
       Property.countDocuments({ status: 'Available' }),
       Property.countDocuments({ status: 'Sold' }),

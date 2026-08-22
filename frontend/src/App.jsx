@@ -6,11 +6,13 @@ import AdminLayout from './components/admin/AdminLayout';
 import Home from './pages/public/Home';
 import Properties from './pages/public/Properties';
 import PropertyDetail from './pages/public/PropertyDetails';
+import Compare from './pages/public/Compare';
 
 // Admin Pages
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import ManageProperties from './pages/admin/ManageProperties';
+import Inquiries from './pages/admin/Inquiries';
 
 const InfoPage = ({ title, children }) => (
   <div className="max-w-4xl mx-auto px-6 py-20">
@@ -28,6 +30,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="properties" element={<Properties />} />
           <Route path="property/:slug" element={<PropertyDetail />} />
+          <Route path="compare" element={<Compare />} />
           <Route path="agents" element={<InfoPage title="Meet our agents">Our advisors combine local market knowledge with thoughtful, transparent guidance.</InfoPage>} />
           <Route path="contact" element={<InfoPage title="Contact us">Reach our Kathmandu office at hello@boutiqueestate.com or +977 1-4000000.</InfoPage>} />
           <Route path="privacy" element={<InfoPage title="Privacy policy">We use inquiry information only to respond to property requests and provide requested services.</InfoPage>} />
@@ -41,7 +44,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="properties" element={<ManageProperties />} />
-          <Route path="inquiries" element={<div className="p-8 font-serif text-xl">Inquiry management is available through the API.</div>} />
+          <Route path="inquiries" element={<Inquiries />} />
         </Route>
       </Routes>
     </BrowserRouter>

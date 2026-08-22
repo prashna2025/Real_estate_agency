@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, GitCompareArrows } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useCompare } from '../../context/CompareContent';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { compareItems } = useCompare();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -36,6 +38,14 @@ const Navbar = () => {
               {link.name}
             </NavLink>
           ))}
+          <NavLink to="/compare" className={({ isActive }) => cn(
+            "flex items-center gap-2 text-sm font-medium transition-colors hover:text-terracotta",
+            isActive ? "text-terracotta" : "text-charcoal-muted"
+          )}>
+            <GitCompareArrows size={16} />
+            Compare
+            {compareItems.length > 0 && <span className="bg-terracotta text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center text-xs">{compareItems.length}</span>}
+          </NavLink>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -63,6 +73,9 @@ const Navbar = () => {
               {link.name}
             </NavLink>
           ))}
+          <NavLink to="/compare" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-lg font-serif text-charcoal">
+            <GitCompareArrows size={18} /> Compare {compareItems.length > 0 && `(${compareItems.length})`}
+          </NavLink>
         </div>
       )}
     </nav>

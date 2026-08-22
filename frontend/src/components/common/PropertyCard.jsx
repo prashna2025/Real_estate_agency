@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, BedDouble, Bath, Square } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, GitCompareArrows } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { getImageUrl } from '../../services/api';
+import { useCompare } from '../../context/CompareContent';
 
 const PropertyCard = ({ property, className }) => {
   const formatPrice = (price) => {
@@ -12,6 +13,9 @@ const PropertyCard = ({ property, className }) => {
       maximumFractionDigits: 0
     }).format(price);
   };
+  const { isCompared, toggleCompare, compareItems, maxItems } = useCompare();
+  const compared = isCompared(property._id);
+  const compareDisabled = !compared && compareItems.length >= maxItems;
 
   return (
     <div className={cn("group flex flex-col bg-white border border-stone rounded-sm overflow-hidden", className)}>
@@ -35,6 +39,15 @@ const PropertyCard = ({ property, className }) => {
 
       {/* Content */}
       <div className="p-6 flex flex-col flex-grow">
+        <button
+          type="button"
+          onClick={() => toggleCompare(property)}
+          disabled={compareDisabled}
+          title={compareDisabled ? `Compare up to ${maxItems} properties` : compared ? 'Remove from compare' : 'Add to compare'}
+          className={cn("self-end -mt-2 mb-2 inline-flex items-center gap-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40", compared ? "text-terracotta" : "text-charcoal-muted hover:text-terracotta")}
+        >
+          <GitCompareArrows size={16} /> {compared ? 'Compared' : 'Compare'}
+        </button>
         <p className="text-terracotta font-serif text-xl font-semibold mb-2">
           {formatPrice(property.price)}
         </p>

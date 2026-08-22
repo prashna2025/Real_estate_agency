@@ -8,6 +8,7 @@ import Button from '../../components/common/Button';
 const Properties = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
   
   // Filter States
@@ -21,9 +22,10 @@ const Properties = () => {
   const fetchProperties = async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams(filters).toString();
+      const queryParams = searchParams.toString();
       const { data } = await api.get(`/properties?${queryParams}`);
-      setProperties(data.properties);
+      setProperties(data.properties || []);
+      setPagination({ page: data.page || 1, pages: data.pages || 1, total: data.totalProperties || 0 });
     } catch (error) {
       console.error('Error fetching properties', error);
     } finally {
@@ -32,6 +34,12 @@ const Properties = () => {
   };
 
   useEffect(() => {
+    setFilters({
+      keyword: searchParams.get('keyword') || '',
+      type: searchParams.get('type') || '',
+      category: searchParams.get('category') || '',
+      city: searchParams.get('city') || '',
+    });
     fetchProperties();
     // eslint-disable-next-line
   }, [searchParams]);
@@ -46,12 +54,19 @@ const Properties = () => {
     Object.keys(filters).forEach(key => {
       if (filters[key]) activeFilters[key] = filters[key];
     });
-    setSearchParams(activeFilters);
+    setSearchParams({ ...activeFilters, page: '1' });
   };
 
   const clearFilters = () => {
     setFilters({ keyword: '', type: '', category: '', city: '' });
     setSearchParams({});
+  };
+
+  const changePage = (page) => {
+    if (page < 1 || page > pagination.pages) return;
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('page', String(page));
+    setSearchParams(nextParams);
   };
 
   return (
@@ -137,7 +152,7 @@ const Properties = () => {
         <h1 className="text-3xl font-serif mb-8">
           Property Collection 
           <span className="text-charcoal-muted text-lg font-sans ml-3 font-normal">
-            ({properties.length} results)
+            ({pagination.total} results)
           </span>
         </h1>
         
@@ -153,6 +168,13 @@ const Properties = () => {
             {properties.map(property => (
               <PropertyCard key={property._id} property={property} />
             ))}
+          </div>
+        )}
+        {!loading && pagination.pages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-10">
+            <Button type="button" variant="outline" size="sm" onClick={() => changePage(pagination.page - 1)} disabled={pagination.page === 1}>Previous</Button>
+            <span className="text-sm text-charcoal-muted">Page {pagination.page} of {pagination.pages}</span>
+            <Button type="button" variant="outline" size="sm" onClick={() => changePage(pagination.page + 1)} disabled={pagination.page === pagination.pages}>Next</Button>
           </div>
         )}
       </main>
