@@ -37,7 +37,7 @@ const Home = () => {
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full flex justify-start">
-          <div className="bg-cream p-10 md:p-16 max-w-xl border-l-4 border-terracotta shadow-2xl">
+          <div className="bg-white/95 backdrop-blur-sm p-8 md:p-12 max-w-xl border border-white shadow-xl">
             <h1 className="text-4xl md:text-6xl font-serif text-charcoal leading-tight mb-6">
               Curated homes for the modern lifestyle.
             </h1>
@@ -88,14 +88,14 @@ const Home = () => {
       </section>
 
       {/* Brand Ethos Section */}
-      <section className="bg-charcoal text-cream py-24">
+      <section className="bg-cream-dark/60 border-y border-stone py-24">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="text-3xl md:text-5xl font-serif mb-6 text-white">Not just a transaction. A transition.</h2>
-            <p className="text-cream-dark/80 text-lg mb-6 leading-relaxed font-sans">
+            <h2 className="text-3xl md:text-5xl font-serif mb-6 text-charcoal">Not just a transaction. A transition.</h2>
+            <p className="text-charcoal-muted text-lg mb-6 leading-relaxed font-sans">
               We move away from the high-pressure sales tactics of traditional real estate. Instead, we offer advisory services grounded in market data, architectural appreciation, and your personal lifestyle goals.
             </p>
-            <Button variant="outline" className="border-cream text-cream hover:bg-cream hover:text-charcoal mt-4">
+            <Button variant="outline" className="mt-4">
               Meet Our Agents
             </Button>
           </div>

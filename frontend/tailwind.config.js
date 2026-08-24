@@ -8,20 +8,20 @@ export default {
     extend: {
       colors: {
         cream: {
-          DEFAULT: '#FAF8F5',
-          dark: '#F0EBE1',
+          DEFAULT: '#F7F9FA',
+          dark: '#EDF2F4',
         },
         charcoal: {
-          DEFAULT: '#1E1E1E',
-          light: '#3A3834',
-          muted: '#6E685F',
+          DEFAULT: '#172A36',
+          light: '#294451',
+          muted: '#637681',
         },
         terracotta: {
-          DEFAULT: '#8C4A32',
-          hover: '#733B26',
+          DEFAULT: '#147D83',
+          hover: '#0F6267',
         },
         stone: {
-          DEFAULT: '#E8E5DF', // For subtle borders
+          DEFAULT: '#DCE5E8',
         }
       },
       fontFamily: {
