@@ -3,7 +3,7 @@ import { CheckCircle, Mail, MapPin, Phone } from 'lucide-react';
 import { api } from '../../services/api';
 import Button from '../../components/common/Button';
 
-const initialForm = { name: '', email: '', phone: '', message: '' };
+const initialForm = { name: '', email: '', phone: '', subject: '', preferredContactTime: '', message: '' };
 
 const Contact = () => {
   const [formData, setFormData] = useState(initialForm);
@@ -68,6 +68,21 @@ const Contact = () => {
                 <div>
                   <label htmlFor="contact-phone" className="block text-sm font-medium mb-1">Phone Number</label>
                   <input id="contact-phone" name="phone" required type="tel" value={formData.phone} onChange={handleChange} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label htmlFor="contact-subject" className="block text-sm font-medium mb-1">Subject</label>
+                  <input id="contact-subject" name="subject" maxLength="120" value={formData.subject} onChange={handleChange} placeholder="What can we help with?" className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                </div>
+                <div>
+                  <label htmlFor="contact-time" className="block text-sm font-medium mb-1">Preferred contact time</label>
+                  <select id="contact-time" name="preferredContactTime" value={formData.preferredContactTime} onChange={handleChange} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm bg-white">
+                    <option value="">Any time</option>
+                    <option value="Morning (9am-12pm)">Morning (9am-12pm)</option>
+                    <option value="Afternoon (12pm-4pm)">Afternoon (12pm-4pm)</option>
+                    <option value="Evening (4pm-7pm)">Evening (4pm-7pm)</option>
+                  </select>
                 </div>
               </div>
               <div>

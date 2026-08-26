@@ -35,6 +35,8 @@ export const sendInquiryEmail = async ({ inquiry, property }) => {
   const name = escapeHtml(inquiry.name);
   const email = escapeHtml(inquiry.email);
   const phone = escapeHtml(inquiry.phone);
+  const subject = escapeHtml(inquiry.subject || 'Property inquiry');
+  const preferredContactTime = escapeHtml(inquiry.preferredContactTime || 'Any time');
   const location = property ? escapeHtml(`${property.location}, ${property.city}`) : 'No specific property selected';
   const message = escapeHtml(inquiry.message);
 
@@ -61,6 +63,14 @@ export const sendInquiryEmail = async ({ inquiry, property }) => {
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Phone:</strong></td>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;"><a href="tel:${phone}" style="color: #8C4A32;">${phone}</a></td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Subject:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;">${subject}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Preferred contact time:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9;">${preferredContactTime}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #E2DED9; color: #6E685F;"><strong>Property City / Location:</strong></td>

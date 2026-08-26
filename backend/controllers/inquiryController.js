@@ -9,7 +9,7 @@ import { sendInquiryEmail } from '../services/emailServices.js';
  */
 export const createInquiry = async (req, res) => {
   try {
-    const { name, email, phone, message, propertyId } = req.body;
+    const { name, email, phone, subject, preferredContactTime, message, propertyId } = req.body;
     if (!name || String(name).trim().length < 2 || String(name).length > 100) {
       return res.status(400).json({ message: 'Name must be between 2 and 100 characters' });
     }
@@ -22,6 +22,9 @@ export const createInquiry = async (req, res) => {
     if (!message || String(message).trim().length < 5 || String(message).length > 2000) {
       return res.status(400).json({ message: 'Message must be between 5 and 2000 characters' });
     }
+    if (subject && String(subject).length > 120) {
+      return res.status(400).json({ message: 'Subject must be 120 characters or fewer' });
+    }
 
     const property = propertyId ? await Property.findById(propertyId) : null;
     if (propertyId && !property) {
@@ -32,6 +35,8 @@ export const createInquiry = async (req, res) => {
       name,
       email,
       phone,
+      subject,
+      preferredContactTime,
       message,
       propertyId,
     });
