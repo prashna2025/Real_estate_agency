@@ -17,6 +17,10 @@ const Properties = () => {
     type: searchParams.get('type') || '',
     category: searchParams.get('category') || '',
     city: searchParams.get('city') || '',
+    minPrice: searchParams.get('minPrice') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    bedrooms: searchParams.get('bedrooms') || '',
+    sort: searchParams.get('sort') || '',
   });
 
   const fetchProperties = async () => {
@@ -39,6 +43,10 @@ const Properties = () => {
       type: searchParams.get('type') || '',
       category: searchParams.get('category') || '',
       city: searchParams.get('city') || '',
+      minPrice: searchParams.get('minPrice') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
+      bedrooms: searchParams.get('bedrooms') || '',
+      sort: searchParams.get('sort') || '',
     });
     fetchProperties();
     // eslint-disable-next-line
@@ -137,6 +145,39 @@ const Properties = () => {
                 placeholder="e.g. Kathmandu" 
                 className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Min price</label>
+                <input type="number" min="0" name="minPrice" value={filters.minPrice} onChange={handleFilterChange} placeholder="NPR" className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Max price</label>
+                <input type="number" min="0" name="maxPrice" value={filters.maxPrice} onChange={handleFilterChange} placeholder="NPR" className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">Minimum bedrooms</label>
+              <select name="bedrooms" value={filters.bedrooms} onChange={handleFilterChange} className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm">
+                <option value="">Any number</option>
+                <option value="1">1+ bedroom</option>
+                <option value="2">2+ bedrooms</option>
+                <option value="3">3+ bedrooms</option>
+                <option value="4">4+ bedrooms</option>
+                <option value="5">5+ bedrooms</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">Sort by</label>
+              <select name="sort" value={filters.sort} onChange={handleFilterChange} className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm">
+                <option value="">Newest listings</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
+                <option value="views">Most viewed</option>
+              </select>
             </div>
 
             <div className="pt-4 flex flex-col gap-3 border-t border-stone">
