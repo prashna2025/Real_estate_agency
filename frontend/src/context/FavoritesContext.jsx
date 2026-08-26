@@ -20,7 +20,7 @@ export const FavoritesProvider = ({ children }) => {
   const isFavorite = (propertyId) => favoriteItems.some((item) => item._id === propertyId);
 
   const toggleFavorite = (property) => {
-    setFavoriteItems((currentItems) => isFavorite(property._id)
+    setFavoriteItems((currentItems) => currentItems.some((item) => item._id === property._id)
       ? currentItems.filter((item) => item._id !== property._id)
       : [...currentItems, property]);
   };
