@@ -66,7 +66,7 @@ const Properties = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ keyword: '', type: '', category: '', city: '' });
+    setFilters({ keyword: '', type: '', category: '', city: '', minPrice: '', maxPrice: '', bedrooms: '', sort: '' });
     setSearchParams({});
   };
 
