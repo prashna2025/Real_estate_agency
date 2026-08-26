@@ -3,6 +3,7 @@ import {
   loginAdmin,
   getAdminProfile,
   getDashboardStats,
+  getPublicAgents,
 } from '../controllers/adminController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { initPayment, verifyPayment } from '../controllers/paymentController.js';
@@ -10,6 +11,7 @@ import { initPayment, verifyPayment } from '../controllers/paymentController.js'
 const router = express.Router();
 
 router.post('/login', loginAdmin);
+router.get('/agents', getPublicAgents);
 router.get('/profile', protect, getAdminProfile);
 router.get('/dashboard-stats', protect, getDashboardStats);
 router.post('/payments/init', protect, initPayment);

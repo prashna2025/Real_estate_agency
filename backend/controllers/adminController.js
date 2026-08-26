@@ -89,3 +89,20 @@ export const getDashboardStats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/**
+ * @desc   Get public agent profiles
+ * @route  GET /api/admin/agents
+ * @access Public
+ */
+export const getPublicAgents = async (_req, res) => {
+  try {
+    const agents = await Admin.find({}, 'name bio isVerified rating reviews').lean();
+    res.json(agents.map(({ reviews, ...agent }) => ({
+      ...agent,
+      reviewsCount: reviews?.length || 0,
+    })));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

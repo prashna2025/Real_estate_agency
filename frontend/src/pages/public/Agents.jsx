@@ -1,34 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AgentCard from './AgentCard';
 import Button from '../../components/common/Button';
-
-const agents = [
-  {
-    name: 'Aarav Shrestha',
-    bio: 'Residential specialist for Kathmandu Valley homes',
-    isVerified: true,
-    rating: 4.9,
-    reviews: [{}, {}, {}, {}, {}],
-  },
-  {
-    name: 'Maya Gurung',
-    bio: 'Thoughtful guidance for first-time buyers',
-    isVerified: true,
-    rating: 4.8,
-    reviews: [{}, {}, {}, {}],
-  },
-  {
-    name: 'Rohan Thapa',
-    bio: 'Commercial property and investment advisor',
-    isVerified: true,
-    rating: 4.7,
-    reviews: [{}, {}, {}, {}, {}, {}],
-  },
-];
+import { api } from '../../services/api';
 
 const Agents = () => {
+  const [agents, setAgents] = useState([]);
+  const [status, setStatus] = useState({ loading: true, error: '' });
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const { data } = await api.get('/admin/agents');
+        setAgents(Array.isArray(data) ? data : []);
+      } catch (error) {
+        setStatus({ loading: false, error: 'We could not load our advisors right now.' });
+        return;
+      }
+      setStatus({ loading: false, error: '' });
+    };
+    fetchAgents();
+  }, []);
+
   return (
     <div>
       <section className="bg-charcoal text-cream py-20 md:py-28">
@@ -42,9 +36,17 @@ const Agents = () => {
       </section>
 
       <section className="max-w-7xl mx-auto px-6 py-20 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {agents.map((agent) => <AgentCard key={agent.name} agent={agent} />)}
-        </div>
+        {status.loading ? (
+          <div className="py-16 text-center text-charcoal-muted font-serif italic">Loading our advisors...</div>
+        ) : status.error ? (
+          <div className="py-16 text-center text-charcoal-muted border border-stone">{status.error}</div>
+        ) : agents.length === 0 ? (
+          <div className="py-16 text-center text-charcoal-muted border border-stone">Our advisor profiles are being prepared.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {agents.map((agent) => <AgentCard key={agent._id || agent.email || agent.name} agent={agent} />)}
+          </div>
+        )}
 
         <div className="mt-20 border-t border-stone pt-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>

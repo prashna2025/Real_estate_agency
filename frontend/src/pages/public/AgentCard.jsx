@@ -20,7 +20,7 @@ const AgentCard = ({ agent }) => {
       <div className="mt-4 flex items-center justify-center gap-1 text-sm font-medium text-charcoal">
         <Star size={16} className="text-[#D4AF37] fill-[#D4AF37]" />
         {agent.rating ? agent.rating.toFixed(1) : 'New'} 
-        <span className="text-charcoal-muted font-normal">({agent.reviews?.length || 0} reviews)</span>
+        <span className="text-charcoal-muted font-normal">({agent.reviewsCount ?? agent.reviews?.length ?? 0} reviews)</span>
       </div>
     </div>
   );
