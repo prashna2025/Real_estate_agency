@@ -23,8 +23,8 @@ export const createInquiry = async (req, res) => {
       return res.status(400).json({ message: 'Message must be between 5 and 2000 characters' });
     }
 
-    const property = await Property.findById(propertyId);
-    if (!property) {
+    const property = propertyId ? await Property.findById(propertyId) : null;
+    if (propertyId && !property) {
       return res.status(404).json({ message: 'Property not found' });
     }
 

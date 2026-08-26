@@ -8,6 +8,7 @@ import Properties from './pages/public/Properties';
 import PropertyDetail from './pages/public/PropertyDetails';
 import Compare from './pages/public/Compare';
 import Agents from './pages/public/Agents';
+import Contact from './pages/public/Contact';
 
 // Admin Pages
 import Login from './pages/admin/Login';
@@ -33,7 +34,7 @@ function App() {
           <Route path="property/:slug" element={<PropertyDetail />} />
           <Route path="compare" element={<Compare />} />
           <Route path="agents" element={<Agents />} />
-          <Route path="contact" element={<InfoPage title="Contact us">Reach our Kathmandu office at hello@boutiqueestate.com or +977 1-4000000.</InfoPage>} />
+          <Route path="contact" element={<Contact />} />
           <Route path="privacy" element={<InfoPage title="Privacy policy">We use inquiry information only to respond to property requests and provide requested services.</InfoPage>} />
           <Route path="terms" element={<InfoPage title="Terms of service">Property information is provided for guidance and remains subject to verification and availability.</InfoPage>} />
         </Route>

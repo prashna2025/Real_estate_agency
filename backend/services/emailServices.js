@@ -31,23 +31,23 @@ export const sendInquiryEmail = async ({ inquiry, property }) => {
   }
 
   const transporter = createTransporter();
-  const propertyTitle = escapeHtml(property.title);
+  const propertyTitle = escapeHtml(property?.title || 'General inquiry');
   const name = escapeHtml(inquiry.name);
   const email = escapeHtml(inquiry.email);
   const phone = escapeHtml(inquiry.phone);
-  const location = escapeHtml(`${property.location}, ${property.city}`);
+  const location = property ? escapeHtml(`${property.location}, ${property.city}`) : 'No specific property selected';
   const message = escapeHtml(inquiry.message);
 
   const mailOptions = {
     from: `"Boutique Real Estate" <${process.env.EMAIL_USER}>`,
     to: process.env.EMAIL_USER, // Agency inbox receives the inquiry
-    subject: `New Lead: ${property.title}`,
+    subject: `New Lead: ${property?.title || 'General inquiry'}`,
     html: `
       <div style="font-family: 'DM Sans', Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #E8E5DF; background-color: #FAF8F5; color: #1E1E1E;">
         <h2 style="font-family: 'Playfair Display', Georgia, serif; color: #8C4A32; border-bottom: 2px solid #8C4A32; padding-bottom: 8px;">
           New Property Inquiry
         </h2>
-        <p style="font-size: 15px; line-height: 1.6;">You have received a new inquiry for the property: <strong>${propertyTitle}</strong> (NPR ${property.price.toLocaleString()}).</p>
+        <p style="font-size: 15px; line-height: 1.6;">You have received a new inquiry regarding: <strong>${propertyTitle}</strong>${property ? ` (NPR ${property.price.toLocaleString()})` : '.'}</p>
         
         <table style="width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px;">
           <tr>
@@ -80,7 +80,7 @@ export const sendInquiryEmail = async ({ inquiry, property }) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`[EmailService] Inquiry email successfully dispatched for property: ${property.title}`);
+    console.log(`[EmailService] Inquiry email successfully dispatched for: ${property?.title || 'general inquiry'}`);
   } catch (error) {
     console.error('[EmailService] Failed to send email:', error.message);
   }

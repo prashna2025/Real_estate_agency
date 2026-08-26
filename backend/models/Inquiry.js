@@ -5,7 +5,7 @@ const inquirySchema = new mongoose.Schema({
 	email: { type: String, required: true, lowercase: true, trim: true },
 	phone: { type: String, required: true, trim: true },
 	message: { type: String, required: true },
-	propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true },
+	propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
 	status: { type: String, enum: ['New', 'Contacted', 'Resolved'], default: 'New' },
 }, { timestamps: true });
 
