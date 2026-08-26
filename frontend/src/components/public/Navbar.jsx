@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, X, GitCompareArrows } from 'lucide-react';
+import { Menu, X, GitCompareArrows, Heart } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useCompare } from '../../context/CompareContent';
+import { useFavorites } from '../../context/FavoritesContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { compareItems } = useCompare();
+  const { favoriteItems } = useFavorites();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -46,6 +48,14 @@ const Navbar = () => {
             Compare
             {compareItems.length > 0 && <span className="bg-terracotta text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center text-xs">{compareItems.length}</span>}
           </NavLink>
+          <NavLink to="/favorites" className={({ isActive }) => cn(
+            "flex items-center gap-2 text-sm font-medium transition-colors hover:text-terracotta",
+            isActive ? "text-terracotta" : "text-charcoal-muted"
+          )}>
+            <Heart size={16} fill={favoriteItems.length > 0 ? 'currentColor' : 'none'} />
+            Saved
+            {favoriteItems.length > 0 && <span className="bg-terracotta text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center text-xs">{favoriteItems.length}</span>}
+          </NavLink>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -75,6 +85,9 @@ const Navbar = () => {
           ))}
           <NavLink to="/compare" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-lg font-serif text-charcoal">
             <GitCompareArrows size={18} /> Compare {compareItems.length > 0 && `(${compareItems.length})`}
+          </NavLink>
+          <NavLink to="/favorites" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-lg font-serif text-charcoal">
+            <Heart size={18} fill={favoriteItems.length > 0 ? 'currentColor' : 'none'} /> Saved {favoriteItems.length > 0 && `(${favoriteItems.length})`}
           </NavLink>
         </div>
       )}

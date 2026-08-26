@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, BedDouble, Bath, Square, GitCompareArrows } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, GitCompareArrows, Heart } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { getImageUrl } from '../../services/api';
 import { useCompare } from '../../context/CompareContent';
+import { useFavorites } from '../../context/FavoritesContext';
 
 const PropertyCard = ({ property, className }) => {
   const formatPrice = (price) => {
@@ -14,7 +15,9 @@ const PropertyCard = ({ property, className }) => {
     }).format(price);
   };
   const { isCompared, toggleCompare, compareItems, maxItems } = useCompare();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const compared = isCompared(property._id);
+  const favorite = isFavorite(property._id);
   const compareDisabled = !compared && compareItems.length >= maxItems;
 
   return (
@@ -47,6 +50,15 @@ const PropertyCard = ({ property, className }) => {
           className={cn("self-end -mt-2 mb-2 inline-flex items-center gap-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40", compared ? "text-terracotta" : "text-charcoal-muted hover:text-terracotta")}
         >
           <GitCompareArrows size={16} /> {compared ? 'Compared' : 'Compare'}
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleFavorite(property)}
+          title={favorite ? 'Remove from saved properties' : 'Save property'}
+          aria-label={favorite ? `Remove ${property.title} from saved properties` : `Save ${property.title}`}
+          className={cn("self-end -mt-2 mb-2 inline-flex items-center gap-1.5 text-xs font-medium transition-colors", favorite ? "text-terracotta" : "text-charcoal-muted hover:text-terracotta")}
+        >
+          <Heart size={16} fill={favorite ? 'currentColor' : 'none'} /> {favorite ? 'Saved' : 'Save'}
         </button>
         <p className="text-terracotta font-serif text-xl font-semibold mb-2">
           {formatPrice(property.price)}
