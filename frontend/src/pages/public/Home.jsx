@@ -95,9 +95,11 @@ const Home = () => {
             <p className="text-charcoal-muted text-lg mb-6 leading-relaxed font-sans">
               We move away from the high-pressure sales tactics of traditional real estate. Instead, we offer advisory services grounded in market data, architectural appreciation, and your personal lifestyle goals.
             </p>
-            <Button variant="outline" className="mt-4">
-              Meet Our Agents
-            </Button>
+            <Link to="/agents">
+              <Button variant="outline" className="mt-4">
+                Meet Our Agents
+              </Button>
+            </Link>
           </div>
           <div className="aspect-[4/5] relative overflow-hidden">
             <img 
