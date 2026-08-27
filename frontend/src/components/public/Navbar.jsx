@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, X, GitCompareArrows, Heart } from 'lucide-react';
+import { Menu, X, GitCompareArrows, Heart, UserRound } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useCompare } from '../../context/CompareContent';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -9,6 +9,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { compareItems } = useCompare();
   const { favoriteItems } = useFavorites();
+  const { user, userLogout } = useAuth();
 
   const navLinks = [
     { name: 'Home', path: '/' },

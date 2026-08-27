@@ -10,6 +10,7 @@ import Compare from './pages/public/Compare';
 import Agents from './pages/public/Agents';
 import Contact from './pages/public/Contact';
 import Favorites from './pages/public/Favorites';
+import UserAuth from './pages/public/UserAuth';
 
 // Admin Pages
 import Login from './pages/admin/Login';
@@ -35,6 +36,8 @@ function App() {
           <Route path="property/:slug" element={<PropertyDetail />} />
           <Route path="compare" element={<Compare />} />
           <Route path="favorites" element={<Favorites />} />
+          <Route path="login" element={<UserAuth />} />
+          <Route path="register" element={<UserAuth />} />
           <Route path="agents" element={<Agents />} />
           <Route path="contact" element={<Contact />} />
           <Route path="privacy" element={<InfoPage title="Privacy policy">We use inquiry information only to respond to property requests and provide requested services.</InfoPage>} />

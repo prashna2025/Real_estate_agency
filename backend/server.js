@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
 import inquiryRoutes from './routes/inquiryRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/admin', adminRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/users', userRoutes);
 
 app.use((error, _req, res, _next) => {
   res.status(error.status || 500).json({ message: error.message || 'Server error' });
