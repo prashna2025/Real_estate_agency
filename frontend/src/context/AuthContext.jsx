@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
         const parsedUser = JSON.parse(storedUser);
         if (parsedUser?.token) {
           setUser(parsedUser);
+          if (!storedAdmin) api.defaults.headers.common['Authorization'] = `Bearer ${parsedUser.token}`;
         } else {
           localStorage.removeItem('userInfo');
         }
@@ -56,6 +57,7 @@ export const AuthProvider = ({ children }) => {
     const { data } = await api.post('/users/login', { email, password });
     setUser(data);
     localStorage.setItem('userInfo', JSON.stringify(data));
+    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     return data;
   };
 
@@ -63,16 +65,29 @@ export const AuthProvider = ({ children }) => {
     const { data } = await api.post('/users/register', { name, email, password });
     setUser(data);
     localStorage.setItem('userInfo', JSON.stringify(data));
+    api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+    return data;
+  };
+
+  const updateUserProfile = async (profile) => {
+    const { data } = await api.put('/users/profile', profile);
+    setUser((currentUser) => ({ ...currentUser, ...data }));
+    setUser((currentUser) => {
+      const updatedUser = { ...currentUser, ...data };
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
     return data;
   };
 
   const userLogout = () => {
     setUser(null);
     localStorage.removeItem('userInfo');
+    if (!admin) delete api.defaults.headers.common['Authorization'];
   };
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, user, userLogin, userRegister, userLogout, loading }}>
+    <AuthContext.Provider value={{ admin, login, logout, user, userLogin, userRegister, updateUserProfile, userLogout, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

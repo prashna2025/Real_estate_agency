@@ -41,3 +41,28 @@ export const toggleFavorite = async (req, res) => {
     res.json(user.favorites);
   } catch (error) { res.status(400).json({ message: error.message }); }
 };
+
+export const getUserProfile = async (req, res) => {
+  res.json(req.user);
+};
+
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+    if (!name?.trim() || !normalizedEmail) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+
+    const emailInUse = await User.findOne({ email: normalizedEmail, _id: { $ne: req.user._id } });
+    if (emailInUse) return res.status(400).json({ message: 'Email is already in use' });
+
+    const user = await User.findById(req.user._id);
+    user.name = name.trim();
+    user.email = normalizedEmail;
+    await user.save();
+    res.json({ _id: user._id, name: user.name, email: user.email, favorites: user.favorites });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
