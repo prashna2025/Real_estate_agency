@@ -20,8 +20,13 @@ const Properties = () => {
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     bedrooms: searchParams.get('bedrooms') || '',
+    bathrooms: searchParams.get('bathrooms') || '',
+    minArea: searchParams.get('minArea') || '',
+    maxArea: searchParams.get('maxArea') || '',
+    status: searchParams.get('status') || '',
     sort: searchParams.get('sort') || '',
   });
+  const [filterError, setFilterError] = useState('');
 
   const fetchProperties = async () => {
     setLoading(true);
@@ -46,6 +51,10 @@ const Properties = () => {
       minPrice: searchParams.get('minPrice') || '',
       maxPrice: searchParams.get('maxPrice') || '',
       bedrooms: searchParams.get('bedrooms') || '',
+      bathrooms: searchParams.get('bathrooms') || '',
+      minArea: searchParams.get('minArea') || '',
+      maxArea: searchParams.get('maxArea') || '',
+      status: searchParams.get('status') || '',
       sort: searchParams.get('sort') || '',
     });
     fetchProperties();
@@ -58,6 +67,15 @@ const Properties = () => {
 
   const applyFilters = (e) => {
     e.preventDefault();
+    if (filters.minPrice && filters.maxPrice && Number(filters.minPrice) > Number(filters.maxPrice)) {
+      setFilterError('Minimum price cannot be higher than maximum price.');
+      return;
+    }
+    if (filters.minArea && filters.maxArea && Number(filters.minArea) > Number(filters.maxArea)) {
+      setFilterError('Minimum area cannot be higher than maximum area.');
+      return;
+    }
+    setFilterError('');
     const activeFilters = {};
     Object.keys(filters).forEach(key => {
       if (filters[key]) activeFilters[key] = filters[key];
@@ -66,7 +84,8 @@ const Properties = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ keyword: '', type: '', category: '', city: '', minPrice: '', maxPrice: '', bedrooms: '', sort: '' });
+    setFilters({ keyword: '', type: '', category: '', city: '', minPrice: '', maxPrice: '', bedrooms: '', bathrooms: '', minArea: '', maxArea: '', status: '', sort: '' });
+    setFilterError('');
     setSearchParams({});
   };
 
@@ -171,6 +190,35 @@ const Properties = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">Minimum bathrooms</label>
+              <select name="bathrooms" value={filters.bathrooms} onChange={handleFilterChange} className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm">
+                <option value="">Any number</option>
+                <option value="1">1+ bathroom</option>
+                <option value="2">2+ bathrooms</option>
+                <option value="3">3+ bathrooms</option>
+                <option value="4">4+ bathrooms</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">Area range (sq. ft.)</label>
+              <div className="grid grid-cols-2 gap-3">
+                <input type="number" min="0" name="minArea" value={filters.minArea} onChange={handleFilterChange} placeholder="Min" className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm" />
+                <input type="number" min="0" name="maxArea" value={filters.maxArea} onChange={handleFilterChange} placeholder="Max" className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">Listing status</label>
+              <select name="status" value={filters.status} onChange={handleFilterChange} className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm">
+                <option value="">All statuses</option>
+                <option value="Available">Available</option>
+                <option value="Sold">Sold</option>
+                <option value="Rented">Rented</option>
+              </select>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Sort by</label>
               <select name="sort" value={filters.sort} onChange={handleFilterChange} className="w-full p-2 border border-stone focus:border-terracotta outline-none bg-cream-dark/30 rounded-sm text-sm">
                 <option value="">Newest listings</option>
@@ -181,6 +229,7 @@ const Properties = () => {
             </div>
 
             <div className="pt-4 flex flex-col gap-3 border-t border-stone">
+              {filterError && <p className="text-sm text-red-700" role="alert">{filterError}</p>}
               <Button type="submit" fullWidth>Apply Filters</Button>
               <Button type="button" variant="ghost" onClick={clearFilters} fullWidth>Clear All</Button>
             </div>

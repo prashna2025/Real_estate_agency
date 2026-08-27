@@ -24,6 +24,10 @@ export const getProperties = async (req, res) => {
       minPrice,
       maxPrice,
       bedrooms,
+      bathrooms,
+      minArea,
+      maxArea,
+      status,
       sort,
       page = 1,
       limit = 9,
@@ -48,12 +52,23 @@ export const getProperties = async (req, res) => {
     if (bedrooms !== undefined && Number.isFinite(Number(bedrooms)) && Number(bedrooms) >= 0) {
       query.bedrooms = { $gte: Number(bedrooms) };
     }
+    if (bathrooms !== undefined && Number.isFinite(Number(bathrooms)) && Number(bathrooms) >= 0) {
+      query.bathrooms = { $gte: Number(bathrooms) };
+    }
+    if (status && ['Available', 'Sold', 'Rented'].includes(status)) query.status = status;
 
     // Price range filtering
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice !== undefined && Number.isFinite(Number(minPrice)) && Number(minPrice) >= 0) query.price.$gte = Number(minPrice);
       if (maxPrice !== undefined && Number.isFinite(Number(maxPrice)) && Number(maxPrice) >= 0) query.price.$lte = Number(maxPrice);
+    }
+
+    // Area range filtering
+    if (minArea || maxArea) {
+      query.area = {};
+      if (minArea !== undefined && Number.isFinite(Number(minArea)) && Number(minArea) >= 0) query.area.$gte = Number(minArea);
+      if (maxArea !== undefined && Number.isFinite(Number(maxArea)) && Number(maxArea) >= 0) query.area.$lte = Number(maxArea);
     }
 
     // Sorting logic
