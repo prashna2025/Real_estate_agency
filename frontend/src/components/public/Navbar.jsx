@@ -4,6 +4,7 @@ import { Menu, X, GitCompareArrows, Heart, UserRound } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useCompare } from '../../context/CompareContent';
 import { useFavorites } from '../../context/FavoritesContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,6 +58,20 @@ const Navbar = () => {
             Saved
             {favoriteItems.length > 0 && <span className="bg-terracotta text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center text-xs">{favoriteItems.length}</span>}
           </NavLink>
+          {user ? (
+            <button type="button" onClick={userLogout} className="flex items-center gap-2 text-sm font-medium text-charcoal-muted hover:text-terracotta transition-colors">
+              <UserRound size={16} />
+              Sign out
+            </button>
+          ) : (
+            <NavLink to="/login" className={({ isActive }) => cn(
+              "flex items-center gap-2 text-sm font-medium transition-colors hover:text-terracotta",
+              isActive ? "text-terracotta" : "text-charcoal-muted"
+            )}>
+              <UserRound size={16} />
+              Sign in
+            </NavLink>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -90,6 +105,15 @@ const Navbar = () => {
           <NavLink to="/favorites" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-lg font-serif text-charcoal">
             <Heart size={18} fill={favoriteItems.length > 0 ? 'currentColor' : 'none'} /> Saved {favoriteItems.length > 0 && `(${favoriteItems.length})`}
           </NavLink>
+          {user ? (
+            <button type="button" onClick={() => { userLogout(); setIsOpen(false); }} className="flex items-center gap-2 text-lg font-serif text-charcoal">
+              <UserRound size={18} /> Sign out
+            </button>
+          ) : (
+            <NavLink to="/login" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-lg font-serif text-charcoal">
+              <UserRound size={18} /> Sign in
+            </NavLink>
+          )}
         </div>
       )}
     </nav>
