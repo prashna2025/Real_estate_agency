@@ -3,9 +3,12 @@ import { Link, Navigate } from 'react-router-dom';
 import { Heart, UserRound } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
+import PropertyCard from '../../components/common/PropertyCard';
+import useRecentlyViewed from '../../hooks/useRecentlyViewed';
 
 const UserDashboard = () => {
   const { user, updateUserProfile } = useAuth();
+  const { recentlyViewed } = useRecentlyViewed();
   const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '' });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -56,6 +59,16 @@ const UserDashboard = () => {
           </form>
         </main>
       </div>
+
+      {recentlyViewed.length > 0 && (
+        <section className="mt-16 border-t border-stone pt-10">
+          <h2 className="font-serif text-2xl mb-2">Recently viewed</h2>
+          <p className="text-charcoal-muted text-sm mb-6">Pick up where your property search left off.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {recentlyViewed.map((property) => <PropertyCard key={property._id} property={property} />)}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

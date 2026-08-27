@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft } from 'lucide-react';
 import { api, getImageUrl } from '../../services/api';
 import Button from '../../components/common/Button';
+import useRecentlyViewed from '../../hooks/useRecentlyViewed';
 
 const PropertyDetail = () => {
   const { slug } = useParams();
@@ -13,12 +14,14 @@ const PropertyDetail = () => {
   // Form State
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: 'I am interested in this property and would like to schedule a viewing.' });
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: '' });
+  const { addRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
     const fetchProperty = async () => {
       try {
         const { data } = await api.get(`/properties/${slug}`);
         setProperty(data);
+        addRecentlyViewed(data);
       } catch (error) {
         console.error(error);
       } finally {
