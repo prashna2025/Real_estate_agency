@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft, Heart } from 'lucide-react';
 import { api, getImageUrl } from '../../services/api';
+import { useFavorites } from '../../context/FavoritesContext';
 import Button from '../../components/common/Button';
 import useRecentlyViewed from '../../hooks/useRecentlyViewed';
 
@@ -10,6 +11,7 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   // Form State
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: 'I am interested in this property and would like to schedule a viewing.' });
@@ -91,7 +93,17 @@ const PropertyDetail = () => {
               <span className="bg-white border border-stone px-3 py-1 text-xs font-semibold uppercase tracking-wider text-charcoal rounded-sm shadow-sm">
                 For {property.type}
               </span>
-              <h2 className="text-3xl font-serif text-terracotta">{formatPrice(property.price)}</h2>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => toggleFavorite(property)}
+                  className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${isFavorite(property._id) ? "text-terracotta" : "text-charcoal-muted hover:text-terracotta"}`}
+                >
+                  <Heart size={18} fill={isFavorite(property._id) ? 'currentColor' : 'none'} /> 
+                  {isFavorite(property._id) ? 'Saved' : 'Save Property'}
+                </button>
+                <h2 className="text-3xl font-serif text-terracotta">{formatPrice(property.price)}</h2>
+              </div>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif mb-4 leading-tight">{property.title}</h1>
             <div className="flex items-center text-charcoal-muted text-lg">
