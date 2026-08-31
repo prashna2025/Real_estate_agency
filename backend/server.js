@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
 import inquiryRoutes from './routes/inquiryRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -29,6 +30,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/admin', adminRoutes);
+app.use('/api/appointments', appointmentRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/users', userRoutes);
