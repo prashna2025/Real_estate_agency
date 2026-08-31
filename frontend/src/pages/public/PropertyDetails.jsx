@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft, Heart, CalendarDays } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft, Heart, CalendarDays, Star, Trash2 } from 'lucide-react';
 import { api, getImageUrl } from '../../services/api';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +22,13 @@ const PropertyDetail = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: 'I am interested in this property and would like to schedule a viewing.' });
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: '' });
 
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [myRating, setMyRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewStatus, setReviewStatus] = useState({ loading: false, error: '' });
+
   // Booking Form State
   const [bookData, setBookData] = useState({ name: user?.name || '', email: user?.email || '', phone: '', date: '', time: '', message: '' });
   const [bookStatus, setBookStatus] = useState({ loading: false, success: false, error: '' });
@@ -42,6 +49,68 @@ const PropertyDetail = () => {
     };
     fetchProperty();
   }, [slug]);
+
+  const fetchReviews = async (propertyId) => {
+    try {
+      const { data } = await api.get(`/reviews/${propertyId}`);
+      setReviews(data);
+    } catch { /* ignore */ }
+  };
+
+  // Reload reviews once property is loaded
+  useEffect(() => {
+    if (property?._id) fetchReviews(property._id);
+  }, [property?._id]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!myRating) return setReviewStatus({ loading: false, error: 'Please select a star rating.' });
+    setReviewStatus({ loading: true, error: '' });
+    try {
+      const { data } = await api.post('/reviews', { propertyId: property._id, rating: myRating, comment: reviewComment });
+      setReviews((prev) => {
+        const filtered = prev.filter((r) => r.user._id !== data.user._id);
+        return [data, ...filtered];
+      });
+      setMyRating(0);
+      setReviewComment('');
+      setReviewStatus({ loading: false, error: '' });
+    } catch (err) {
+      setReviewStatus({ loading: false, error: err.response?.data?.message || 'Could not submit review.' });
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    try {
+      await api.delete(`/reviews/${id}`);
+      setReviews((prev) => prev.filter((r) => r._id !== id));
+    } catch { /* ignore */ }
+  };
+
+  const renderStars = (rating, interactive = false) => (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type={interactive ? 'button' : 'button'}
+          onClick={interactive ? () => setMyRating(star) : undefined}
+          onMouseEnter={interactive ? () => setHoverRating(star) : undefined}
+          onMouseLeave={interactive ? () => setHoverRating(0) : undefined}
+          className={interactive ? 'cursor-pointer' : 'cursor-default pointer-events-none'}
+          tabIndex={interactive ? 0 : -1}
+        >
+          <Star
+            size={interactive ? 22 : 16}
+            className={`transition-colors ${
+              star <= (interactive ? (hoverRating || myRating) : rating)
+                ? 'text-terracotta fill-terracotta'
+                : 'text-stone'
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
 
   // Pre-fill booking form when user logs in
   useEffect(() => {
@@ -166,13 +235,78 @@ const PropertyDetail = () => {
           </div>
 
           {/* Description */}
-          <div>
-            <h3 className="text-2xl font-serif mb-4">About this property</h3>
-            <div className="prose prose-stone max-w-none text-charcoal whitespace-pre-line leading-relaxed">
-              {property.description}
+            <div>
+              <h3 className="text-2xl font-serif mb-4">About this property</h3>
+              <div className="prose prose-stone max-w-none text-charcoal whitespace-pre-line leading-relaxed">
+                {property.description}
+              </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="border-t border-stone pt-8">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-serif mb-1">Reviews</h3>
+                  {property.numReviews > 0 && (
+                    <div className="flex items-center gap-2">
+                      {renderStars(property.avgRating)}
+                      <span className="text-charcoal-muted text-sm">{property.avgRating} out of 5 &middot; {property.numReviews} {property.numReviews === 1 ? 'review' : 'reviews'}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Review Form — logged-in users only */}
+              {user ? (
+                <form onSubmit={handleReviewSubmit} className="bg-white border border-stone p-6 rounded-sm mb-8 space-y-4">
+                  <h4 className="font-medium text-sm">Leave a review</h4>
+                  <div>
+                    <p className="text-sm text-charcoal-muted mb-2">Your rating</p>
+                    {renderStars(myRating, true)}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Your comment</label>
+                    <textarea required rows="3" value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm resize-none" placeholder="Share your thoughts about this property..." />
+                  </div>
+                  {reviewStatus.error && <p className="text-red-500 text-sm">{reviewStatus.error}</p>}
+                  <Button type="submit" disabled={reviewStatus.loading}>
+                    {reviewStatus.loading ? 'Submitting...' : 'Submit Review'}
+                  </Button>
+                </form>
+              ) : (
+                <p className="text-charcoal-muted text-sm mb-6">
+                  <Link to="/login" className="text-terracotta hover:underline">Sign in</Link> to leave a review.
+                </p>
+              )}
+
+              {/* Reviews List */}
+              {reviews.length === 0 ? (
+                <p className="text-charcoal-muted text-sm italic">No reviews yet. Be the first!</p>
+              ) : (
+                <div className="space-y-5">
+                  {reviews.map((review) => (
+                    <div key={review._id} className="border-b border-stone pb-5 last:border-b-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">{review.user?.name || 'User'}</span>
+                            <span className="text-charcoal-muted text-xs">{new Date(review.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          {renderStars(review.rating)}
+                        </div>
+                        {user && user._id === review.user?._id && (
+                          <button onClick={() => handleDeleteReview(review._id)} title="Delete review" className="text-charcoal-muted hover:text-red-500 transition-colors">
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-charcoal text-sm mt-2 leading-relaxed">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
         {/* Right Col: Sticky Tabs (Inquiry / Book a Visit) */}
         <div className="lg:col-span-1">
