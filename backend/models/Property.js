@@ -17,6 +17,8 @@ const propertySchema = new mongoose.Schema({
   status: { type: String, enum: ['Available', 'Sold', 'Rented'], default: 'Available' },
   isFeatured: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
+  avgRating: { type: Number, default: 0, min: 0, max: 5 },
+  numReviews: { type: Number, default: 0 },
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
   amenities: { type: [String], default: [] },
   serviceLevel: {

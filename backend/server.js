@@ -8,6 +8,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import inquiryRoutes from './routes/inquiryRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 
 app.use((error, _req, res, _next) => {
