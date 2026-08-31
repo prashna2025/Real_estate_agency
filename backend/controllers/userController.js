@@ -17,7 +17,7 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate('favorites');
     if (user && (await user.matchPassword(password))) {
       res.json({ _id: user._id, name: user.name, email: user.email, favorites: user.favorites, token: generateToken(user._id) });
     } else {
@@ -38,6 +38,7 @@ export const toggleFavorite = async (req, res) => {
     }
     
     await user.save();
+    await user.populate('favorites');
     res.json(user.favorites);
   } catch (error) { res.status(400).json({ message: error.message }); }
 };
@@ -61,6 +62,7 @@ export const updateUserProfile = async (req, res) => {
     user.name = name.trim();
     user.email = normalizedEmail;
     await user.save();
+    await user.populate('favorites');
     res.json({ _id: user._id, name: user.name, email: user.email, favorites: user.favorites });
   } catch (error) {
     res.status(400).json({ message: error.message });
