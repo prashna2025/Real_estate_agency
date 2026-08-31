@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft, Heart } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, CheckCircle, ArrowLeft, Heart, CalendarDays } from 'lucide-react';
 import { api, getImageUrl } from '../../services/api';
 import { useFavorites } from '../../context/FavoritesContext';
+import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
 import useRecentlyViewed from '../../hooks/useRecentlyViewed';
 
+const TIME_SLOTS = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+
 const PropertyDetail = () => {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [activeTab, setActiveTab] = useState('inquiry'); // 'inquiry' | 'booking'
   const { isFavorite, toggleFavorite } = useFavorites();
 
-  // Form State
+  // Inquiry Form State
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: 'I am interested in this property and would like to schedule a viewing.' });
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: '' });
+
+  // Booking Form State
+  const [bookData, setBookData] = useState({ name: user?.name || '', email: user?.email || '', phone: '', date: '', time: '', message: '' });
+  const [bookStatus, setBookStatus] = useState({ loading: false, success: false, error: '' });
+
   const { addRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
@@ -33,6 +43,13 @@ const PropertyDetail = () => {
     fetchProperty();
   }, [slug]);
 
+  // Pre-fill booking form when user logs in
+  useEffect(() => {
+    if (user) {
+      setBookData((prev) => ({ ...prev, name: user.name || '', email: user.email || '' }));
+    }
+  }, [user]);
+
   const handleInquirySubmit = async (e) => {
     e.preventDefault();
     setFormStatus({ loading: true, success: false, error: '' });
@@ -45,12 +62,28 @@ const PropertyDetail = () => {
     }
   };
 
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    setBookStatus({ loading: true, success: false, error: '' });
+    try {
+      await api.post('/appointments', { ...bookData, propertyId: property._id });
+      setBookStatus({ loading: false, success: true, error: '' });
+      setBookData({ name: user?.name || '', email: user?.email || '', phone: '', date: '', time: '', message: '' });
+    } catch (error) {
+      setBookStatus({ loading: false, success: false, error: error.response?.data?.message || 'Something went wrong.' });
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center font-serif text-xl italic">Loading property details...</div>;
   if (!property) return <div className="min-h-screen flex items-center justify-center font-serif text-xl">Property not found.</div>;
 
   const images = Array.isArray(property.images) ? property.images : [];
-
   const formatPrice = (price) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(price);
+
+  // Min date = tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split('T')[0];
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -141,44 +174,113 @@ const PropertyDetail = () => {
           </div>
         </div>
 
-        {/* Right Col: Sticky Inquiry Form */}
+        {/* Right Col: Sticky Tabs (Inquiry / Book a Visit) */}
         <div className="lg:col-span-1">
-          <div className="bg-white border border-stone p-8 rounded-sm sticky top-28 shadow-sm">
-            <h3 className="font-serif text-2xl mb-2">Interested?</h3>
-            <p className="text-charcoal-muted text-sm mb-6">Contact our agents to arrange a private viewing.</p>
+          <div className="bg-white border border-stone rounded-sm sticky top-28 shadow-sm overflow-hidden">
+            {/* Tab Headers */}
+            <div className="flex border-b border-stone">
+              <button
+                onClick={() => setActiveTab('inquiry')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'inquiry' ? 'text-terracotta border-b-2 border-terracotta' : 'text-charcoal-muted hover:text-charcoal'}`}
+              >
+                Inquire
+              </button>
+              <button
+                onClick={() => setActiveTab('booking')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'booking' ? 'text-terracotta border-b-2 border-terracotta' : 'text-charcoal-muted hover:text-charcoal'}`}
+              >
+                <CalendarDays size={15} /> Book a Visit
+              </button>
+            </div>
 
-            {formStatus.success ? (
-              <div className="bg-cream-dark p-6 text-center rounded-sm border border-stone">
-                <CheckCircle size={40} className="text-terracotta mx-auto mb-4" />
-                <h4 className="font-serif text-lg mb-2">Inquiry Sent</h4>
-                <p className="text-sm text-charcoal-muted">Our advisory team will reach out to you shortly to discuss next steps.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleInquirySubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Full Name</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Email Address</label>
-                  <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Phone Number</label>
-                  <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Message</label>
-                  <textarea required rows="4" value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm resize-none" />
-                </div>
-                
-                {formStatus.error && <p className="text-red-500 text-sm">{formStatus.error}</p>}
-                
-                <Button type="submit" fullWidth disabled={formStatus.loading}>
-                  {formStatus.loading ? 'Sending...' : 'Request Viewing'}
-                </Button>
-              </form>
-            )}
+            <div className="p-8">
+              {/* Inquiry Tab */}
+              {activeTab === 'inquiry' && (
+                <>
+                  <h3 className="font-serif text-xl mb-2">Interested?</h3>
+                  <p className="text-charcoal-muted text-sm mb-5">Contact our agents to arrange a private viewing.</p>
+                  {formStatus.success ? (
+                    <div className="bg-cream-dark p-6 text-center rounded-sm border border-stone">
+                      <CheckCircle size={40} className="text-terracotta mx-auto mb-4" />
+                      <h4 className="font-serif text-lg mb-2">Inquiry Sent</h4>
+                      <p className="text-sm text-charcoal-muted">Our advisory team will reach out to you shortly.</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleInquirySubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Full Name</label>
+                        <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Email Address</label>
+                        <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Phone Number</label>
+                        <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Message</label>
+                        <textarea required rows="4" value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm resize-none" />
+                      </div>
+                      {formStatus.error && <p className="text-red-500 text-sm">{formStatus.error}</p>}
+                      <Button type="submit" fullWidth disabled={formStatus.loading}>
+                        {formStatus.loading ? 'Sending...' : 'Request Viewing'}
+                      </Button>
+                    </form>
+                  )}
+                </>
+              )}
+
+              {/* Book a Visit Tab */}
+              {activeTab === 'booking' && (
+                <>
+                  <h3 className="font-serif text-xl mb-2">Book a Visit</h3>
+                  <p className="text-charcoal-muted text-sm mb-5">Schedule a time to visit this property in person.</p>
+                  {bookStatus.success ? (
+                    <div className="bg-cream-dark p-6 text-center rounded-sm border border-stone">
+                      <CheckCircle size={40} className="text-terracotta mx-auto mb-4" />
+                      <h4 className="font-serif text-lg mb-2">Visit Booked!</h4>
+                      <p className="text-sm text-charcoal-muted">We'll confirm your appointment soon.</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleBookingSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Full Name</label>
+                        <input required type="text" value={bookData.name} onChange={e => setBookData({...bookData, name: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Email</label>
+                        <input required type="email" value={bookData.email} onChange={e => setBookData({...bookData, email: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Phone</label>
+                        <input required type="tel" value={bookData.phone} onChange={e => setBookData({...bookData, phone: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Preferred Date</label>
+                        <input required type="date" min={minDate} value={bookData.date} onChange={e => setBookData({...bookData, date: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Preferred Time</label>
+                        <select required value={bookData.time} onChange={e => setBookData({...bookData, time: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm bg-white">
+                          <option value="">Select a time slot</option>
+                          {TIME_SLOTS.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Message (optional)</label>
+                        <textarea rows="2" value={bookData.message} onChange={e => setBookData({...bookData, message: e.target.value})} className="w-full p-3 border border-stone focus:border-terracotta outline-none rounded-sm text-sm resize-none" />
+                      </div>
+                      {bookStatus.error && <p className="text-red-500 text-sm">{bookStatus.error}</p>}
+                      <Button type="submit" fullWidth disabled={bookStatus.loading}>
+                        {bookStatus.loading ? 'Booking...' : 'Confirm Visit'}
+                      </Button>
+                    </form>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
 
