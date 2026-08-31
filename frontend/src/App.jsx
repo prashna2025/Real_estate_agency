@@ -18,6 +18,8 @@ import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import ManageProperties from './pages/admin/ManageProperties';
 import Inquiries from './pages/admin/Inquiries';
+import ManageAgents from './pages/admin/ManageAgents';
+import ManageAppointments from './pages/admin/ManageAppointments';
 
 const InfoPage = ({ title, children }) => (
   <div className="max-w-4xl mx-auto px-6 py-20">
@@ -54,6 +56,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="properties" element={<ManageProperties />} />
           <Route path="inquiries" element={<Inquiries />} />
+          <Route path="appointments" element={<ManageAppointments />} />
+          <Route path="team" element={<ManageAgents />} />
         </Route>
       </Routes>
     </BrowserRouter>

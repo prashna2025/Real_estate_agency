@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, Home, Mail, LogOut } from 'lucide-react';
+import { LayoutDashboard, Home, Mail, Users, Calendar, LogOut } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const AdminLayout = () => {
@@ -21,6 +21,8 @@ const AdminLayout = () => {
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Properties', path: '/admin/properties', icon: Home },
     { name: 'Inquiries', path: '/admin/inquiries', icon: Mail },
+    { name: 'Appointments', path: '/admin/appointments', icon: Calendar },
+    { name: 'Team', path: '/admin/team', icon: Users },
   ];
 
   return (
