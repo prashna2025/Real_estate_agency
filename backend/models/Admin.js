@@ -5,7 +5,9 @@ const adminSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
-  role: { type: String, default: 'Admin' },
+  role: { type: String, enum: ['Admin', 'Agent'], default: 'Admin' },
+  specialization: { type: String, default: '' },  // e.g. 'Luxury Homes', 'Commercial'
+  photo: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
   bio: String,
   phone: String,
